@@ -30,6 +30,7 @@ $routes = [
     'admin-update'    => ['admin/update.php', 'admin'],
     'admin-backup'    => ['admin/backup.php', 'admin'],
     'admin-verify'    => ['admin/verify.php', 'admin'],
+    'admin-storage'   => ['admin/storage.php', 'admin'],
 ];
 
 if (!isset($routes[$page])) {
@@ -78,11 +79,10 @@ if ($user && Auth::mustSetup2fa($user) && !in_array($page, ['profile', 'logout',
     redirect(url('profile') . '#security');
 }
 
-// Panel admina: każde wejście wymaga nowego kodu 2FA
+// Panel admina: wejście wymaga nowego kodu 2FA. Weryfikacja jest ważna przez Auth::ADMIN_IDLE
+// od ostatniej czynności w panelu – także po przejściu do zwykłej części aplikacji i powrocie.
 if ($user && Auth::isAdmin()) {
-    if ($access !== 'admin' && $page !== 'logout') {
-        Auth::dropAdminVerified(); // wyjście z panelu kończy uprawnienia
-    } elseif ($access === 'admin' && $page !== 'admin-verify') {
+    if ($access === 'admin' && $page !== 'admin-verify') {
         // aktualizacja bazy nie może się zablokować, gdy admin nie ma jeszcze 2FA
         $soft = in_array($page, ['dbupdate', 'admin-backup'], true);
         if ((int)$user['totp_enabled'] !== 1) {

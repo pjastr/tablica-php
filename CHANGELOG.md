@@ -3,6 +3,21 @@
 Każda zmiana podnosi numer wersji w `app/version.php` (`APP_VERSION`).
 Format: MAJOR.MINOR.PATCH – poprawki zwiększają PATCH, nowe funkcje MINOR.
 
+## 1.2.1 — 2026-11-01
+- Weryfikacja 2FA panelu admina nie wygasa po przejściu do zwykłej części aplikacji: powrót do panelu
+  w ciągu 15 minut od ostatniej czynności w panelu nie wymaga ponownego kodu.
+
+## 1.2.0 — 2026-11-01
+- **Archiwum tablic**: raz w tygodniu (domyślnie w niedzielę o 20:00 czasu serwera) tablice
+  utworzone wcześniej są automatycznie przenoszone do archiwum. Zakładka „Archiwum” na liście tablic
+  (grupowanie według daty archiwizacji), ręczne przenoszenie do archiwum i przywracanie.
+  Ustawienia w Panelu admina → Ustawienia: włączenie, dzień, godzina, reguła (wszystkie
+  wcześniejsze / tylko nieedytowane od 7 dni), „Archiwizuj teraz”. Działa bez crona (jak WP-Cron);
+  opcjonalnie `cron.php` dla dokładnego terminu.
+- **Miejsce na dane** (Panel admina): łączny rozmiar tablic, miniatur i obrazów, rozmiar tabel
+  w bazie, zestawienie dla każdego użytkownika i lista jego tablic z rozmiarami.
+- Wymaga aktualizacji bazy danych (migracja 002 – kolumna `archived_at`).
+
 ## 1.1.0 — 2026-11-01
 - Każde wejście do panelu admina wymaga podania nowego kodu 2FA (kod z logowania nie działa
   ponownie; można też użyć kodu zapasowego). Dostęp wygasa po 15 min bezczynności lub po wyjściu

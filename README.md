@@ -21,8 +21,12 @@ współdzielonym. Licencja: **MIT**.
 - **Konta**: logowanie, rejestracja (do wyłączenia w panelu admina), role **administrator /
   użytkownik**, weryfikacja dwuetapowa **2FA (TOTP)** z kodem QR i kodami zapasowymi, opcjonalne
   wymuszanie 2FA, blokada po nieudanych próbach logowania.
+- **Archiwum tablic**: raz w tygodniu (domyślnie niedziela 20:00 czasu serwera) wcześniejsze tablice
+  trafiają do zakładki „Archiwum” – można je otwierać, przywracać i usuwać. Harmonogram i reguła
+  w ustawieniach. Działa bez crona; dla dokładnego terminu można dodać zadanie
+  `php /ścieżka/cron.php` (co 5–15 min).
 - **Panel administratora**: użytkownicy (dodawanie, role, blokowanie, reset 2FA i hasła, usuwanie),
-  ustawienia, **języki** (wbudowane PL i EN, dodawanie kolejnych i tłumaczenie w przeglądarce,
+  ustawienia, **miejsce na dane** (łącznie i dla każdego użytkownika), **języki** (wbudowane PL i EN, dodawanie kolejnych i tłumaczenie w przeglądarce,
   import/eksport JSON), **aktualizacje**, kopia zapasowa bazy (.sql).
 - Nowoczesny interfejs z trybem jasnym i ciemnym, działa w **Chrome i Firefox** (także na
   tabletach/telefonach).

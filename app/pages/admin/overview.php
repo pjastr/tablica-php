@@ -11,7 +11,7 @@ $stats = [
     ['users', __('admin.stat.users'), (int)DB::value('SELECT COUNT(*) FROM {users}')],
     ['shield-lock', __('admin.stat.admins'), (int)DB::value("SELECT COUNT(*) FROM {users} WHERE `role` = 'admin'")],
     ['layout-grid', __('admin.stat.boards'), (int)DB::value('SELECT COUNT(*) FROM {boards}')],
-    ['photo', __('admin.stat.images'), format_bytes((int)DB::value('SELECT COALESCE(SUM(`size`),0) FROM {images}'))],
+    ['database', __('admin.stat.storage'), format_bytes((int)DB::value('SELECT COALESCE(SUM(LENGTH(`content`) + COALESCE(LENGTH(`thumbnail`),0)),0) FROM {boards}') + (int)DB::value('SELECT COALESCE(SUM(`size`),0) FROM {images}'))],
 ];
 $twofa = (int)DB::value('SELECT COUNT(*) FROM {users} WHERE `totp_enabled` = 1');
 $totalUsers = max(1, $stats[0][2]);
@@ -31,9 +31,9 @@ ob_start(); ?>
 </div>
 <div class="stats">
   <?php foreach ($stats as [$ic, $label, $val]): ?>
-  <div class="stat card">
+  <div class="stat card<?= $ic === 'database' ? ' stat-link' : '' ?>">
     <span class="stat-ic"><?= icon($ic) ?></span>
-    <div><div class="stat-val"><?= e((string)$val) ?></div><div class="muted small"><?= e($label) ?></div></div>
+    <div><div class="stat-val"><?= e((string)$val) ?></div><div class="muted small"><?php if ($ic === 'database'): ?><a href="<?= e(url('admin-storage')) ?>"><?= e($label) ?> →</a><?php else: ?><?= e($label) ?><?php endif; ?></div></div>
   </div>
   <?php endforeach; ?>
 </div>

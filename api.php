@@ -193,6 +193,14 @@ switch ($action) {
         DB::update('boards', ['favorite' => $fav], '`id` = ?', [(int)$b['id']]);
         json_out(['ok' => true, 'fav' => $fav]);
 
+    case 'board.archive':
+        require_post($isPost);
+        $in = input();
+        $b = own_board((int)($in['id'] ?? 0));
+        $arch = !empty($in['archived']);
+        DB::update('boards', ['archived_at' => $arch ? DB::now() : null], '`id` = ?', [(int)$b['id']]);
+        json_out(['ok' => true, 'archived' => $arch]);
+
     case 'board.duplicate':
         require_post($isPost);
         $in = input();

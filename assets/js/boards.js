@@ -72,6 +72,16 @@
             card.setAttribute('data-title', r.title.toLowerCase());
           }).catch(function (err) { App.toast(err.message, 'error'); });
         });
+      } else if (action === 'archive' || action === 'restore') {
+        App.api('board.archive', { id: id, archived: action === 'archive' }).then(function () {
+          card.remove();
+          App.toast(t(action === 'archive' ? 'boards.archived_ok' : 'boards.restored_ok'), 'success');
+          grid.querySelectorAll('.grid-heading').forEach(function (hd) {
+            var n = hd.nextElementSibling;
+            if (!n || n.classList.contains('grid-heading')) hd.remove();
+          });
+          if (!grid.querySelector('.board-card')) location.reload();
+        }).catch(function (err) { App.toast(err.message, 'error'); });
       } else if (action === 'duplicate') {
         App.api('board.duplicate', { id: id }).then(function () { location.reload(); })
           .catch(function (err) { App.toast(err.message, 'error'); });

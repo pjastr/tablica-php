@@ -2,7 +2,7 @@
 defined('TABLICA') || exit;
 
 $id = (int)($_GET['id'] ?? 0);
-$b = DB::row('SELECT `id`,`title`,`content`,`revision` FROM {boards} WHERE `id` = ? AND `user_id` = ?', [$id, Auth::id()]);
+$b = DB::row('SELECT `id`,`title`,`content`,`revision`,`archived_at` FROM {boards} WHERE `id` = ? AND `user_id` = ?', [$id, Auth::id()]);
 if (!$b) {
     flash('error', __('board.not_found'));
     redirect(url('boards'));
@@ -11,9 +11,10 @@ $boardData = [
     'id' => (int)$b['id'],
     'title' => $b['title'],
     'revision' => (int)$b['revision'],
+    'archived' => $b['archived_at'] !== null,
     'content' => json_decode((string)$b['content'], true) ?: ['v' => 1, 'items' => []],
     'maxImageMb' => (int)Settings::get('max_image_mb', '8'),
-    'backUrl' => url('boards'),
+    'backUrl' => $b['archived_at'] !== null ? url('boards', ['view' => 'archive']) : url('boards'),
 ];
 
 echo view('head', ['title' => $b['title'], 'extraCss' => ['css/board.css']]);

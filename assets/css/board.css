@@ -186,3 +186,5 @@ html, body.board-body { height: 100%; overflow: hidden; overscroll-behavior: non
   .bar-zoom { bottom: 70px; }
   .keys { grid-template-columns: 1fr; }
 }
+
+.archived-badge { margin-left: 4px; white-space: nowrap; }

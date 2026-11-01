@@ -9,6 +9,7 @@ $adminNav = [
     'admin' => ['layout-dashboard', __('admin.nav.overview')],
     'admin-users' => ['users', __('admin.nav.users')],
     'admin-settings' => ['adjustments', __('admin.nav.settings')],
+    'admin-storage' => ['database', __('admin.nav.storage')],
     'admin-languages' => ['language', __('admin.nav.languages')],
     'admin-update' => ['refresh', __('admin.nav.update')],
 ];

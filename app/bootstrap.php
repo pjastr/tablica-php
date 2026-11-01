@@ -11,6 +11,7 @@ require ROOT . '/app/lib/I18n.php';
 require ROOT . '/app/lib/Migrator.php';
 require ROOT . '/app/lib/Totp.php';
 require ROOT . '/app/lib/Auth.php';
+require ROOT . '/app/lib/Archiver.php';
 
 mb_internal_encoding('UTF-8');
 date_default_timezone_set(@date_default_timezone_get() ?: 'UTC');
@@ -89,4 +90,13 @@ function app_boot(): void
         $lang = array_key_first($languages);
     }
     I18n::init($lang, $dbReady);
+
+    // Zaległa automatyczna archiwizacja tablic (pseudo-cron, jak WP-Cron)
+    if ($dbReady && !Migrator::needsUpdate()) {
+        try {
+            Archiver::maybeRun();
+        } catch (Throwable $e) {
+            // archiwizacja nie może zablokować działania aplikacji
+        }
+    }
 }

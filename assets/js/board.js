@@ -122,6 +122,7 @@
   var propsEl = document.getElementById('props'), fmtEl = document.getElementById('fmt'), flyout = document.getElementById('flyout');
   var titleInput = document.getElementById('title'), statusEl = document.getElementById('status');
   titleInput.value = board.title;
+  if (DATA.archived) statusEl.insertAdjacentHTML('beforebegin', '<span class="badge archived-badge" title="' + esc(t('board.archived_hint')) + '">' + icon('folder') + esc(t('board.archived_badge')) + '</span>');
 
   var TOOLS = [
     ['select', 'pointer', 'V'], ['hand', 'hand-stop', 'H'], null,
