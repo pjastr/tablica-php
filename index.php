@@ -31,6 +31,7 @@ $routes = [
     'admin-backup'    => ['admin/backup.php', 'admin'],
     'admin-verify'    => ['admin/verify.php', 'admin'],
     'admin-storage'   => ['admin/storage.php', 'admin'],
+    'admin-logins'    => ['admin/logins.php', 'admin'],
 ];
 
 if (!isset($routes[$page])) {

@@ -3,6 +3,15 @@
 Każda zmiana podnosi numer wersji w `app/version.php` (`APP_VERSION`).
 Format: MAJOR.MINOR.PATCH – poprawki zwiększają PATCH, nowe funkcje MINOR.
 
+## 1.3.0 — 2026-11-01
+- **Logowania** (Panel admina): dziennik logowań z nazwą użytkownika, datą, godziną, adresem IP,
+  wynikiem (udane / błędne hasło / błędny kod 2FA / blokada…), rodzajem (logowanie lub wejście do
+  panelu admina) i przeglądarką. Podsumowanie (24 h / 7 dni), wykres 14 dni, filtry (szukaj,
+  wynik, rodzaj, zakres dat), stronicowanie, eksport CSV, historia logowań z menu użytkownika
+  oraz „Ostatnie logowania” na stronie Przegląd.
+- Okres przechowywania dziennika do wyboru (30/90/180/365 dni, domyślnie 90) i czyszczenie dziennika.
+- Wymaga aktualizacji bazy danych (migracja 003 – tabela `login_log`).
+
 ## 1.2.1 — 2026-11-01
 - Weryfikacja 2FA panelu admina nie wygasa po przejściu do zwykłej części aplikacji: powrót do panelu
   w ciągu 15 minut od ostatniej czynności w panelu nie wymaga ponownego kodu.
