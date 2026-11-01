@@ -61,6 +61,48 @@ if (is_post()) {
                 flash('success', __('admin.users.password_set', ['user' => $target['username']]));
             }
             break;
+        case 'edit':
+            $username = post('username');
+            $email = Auth::normalizeIdent(post('email'));
+            $data = [];
+            $err = Auth::validateUsername($username);
+            if (!$err && DB::value('SELECT COUNT(*) FROM {users} WHERE `username` = ? AND `id` <> ?', [$username, $id])) {
+                $err = __('auth.err.username_taken');
+            }
+            if (!$err && (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190)) {
+                $err = __('auth.err.email');
+            }
+            if (!$err && DB::value('SELECT COUNT(*) FROM {users} WHERE `email` = ? AND `id` <> ?', [$email, $id])) {
+                $err = __('auth.err.email_taken');
+            }
+            $data = ['username' => $username, 'email' => $email];
+            if (!$self) {
+                $role = post('role') === 'admin' ? 'admin' : 'user';
+                $status = post('status') === 'disabled' ? 'disabled' : 'active';
+                if ($lastAdmin && ($role !== 'admin' || $status !== 'active')) {
+                    $err = $err ?: __('admin.users.cant_self');
+                }
+                $data['role'] = $role;
+                $data['status'] = $status;
+            }
+            $newPass = (string)($_POST['password'] ?? '');
+            if (!$err && $newPass !== '') {
+                $err = Auth::validatePassword($newPass);
+                $data['password_hash'] = password_hash($newPass, PASSWORD_DEFAULT);
+            }
+            if (!empty($_POST['reset2fa'])) {
+                $data += ['totp_secret' => null, 'totp_enabled' => 0, 'totp_last_step' => 0, 'backup_codes' => null];
+            }
+            if ($err) {
+                flash('error', $err);
+                break;
+            }
+            DB::update('users', $data, '`id` = ?', [$id]);
+            if ($self) {
+                Auth::rehashSession();
+            }
+            flash('success', __('admin.users.saved', ['user' => $username]));
+            break;
         case 'delete':
             if ($self || $lastAdmin) {
                 flash('error', __('admin.users.cant_self'));
@@ -136,9 +178,12 @@ ob_start(); ?>
         <td class="num"><?= (int)$r['boards'] ?></td>
         <td class="small"><?= e(format_date($r['last_login_at'])) ?></td>
         <td class="actions">
+          <?php $editAttrs = 'data-modal-open="edit-user" data-user-id="' . (int)$r['id'] . '" data-user-name="' . e($r['username']) . '" data-user-email="' . e($r['email']) . '" data-user-role="' . e($r['role']) . '" data-user-status="' . e($r['status']) . '" data-user-self="' . ($self ? 1 : 0) . '" data-user-totp="' . (int)$r['totp_enabled'] . '"'; ?>
+          <button type="button" class="btn-icon" <?= $editAttrs ?> title="<?= e(__('admin.users.edit')) ?>" aria-label="<?= e(__('admin.users.edit')) ?>"><?= icon('edit') ?></button>
           <div class="dropdown">
             <button type="button" class="btn-icon" data-dropdown aria-label="<?= e(__('common.more')) ?>"><?= icon('dots-vertical') ?></button>
             <div class="menu menu-right">
+              <button type="button" class="menu-item" <?= $editAttrs ?>><?= icon('edit') ?><?= e(__('admin.users.edit')) ?></button>
               <button type="button" class="menu-item" data-modal-open="pw-user" data-user-id="<?= (int)$r['id'] ?>" data-user-name="<?= e($r['username']) ?>"><?= icon('key') ?><?= e(__('admin.users.set_password')) ?></button>
               <?php if ((int)$r['totp_enabled']): ?>
               <form method="post" data-confirm="<?= e(__('admin.users.reset2fa_confirm', ['user' => $r['username']])) ?>"><?= csrf_field() ?><input type="hidden" name="action" value="reset2fa"><input type="hidden" name="id" value="<?= (int)$r['id'] ?>">
@@ -172,6 +217,26 @@ ob_start(); ?>
       <select name="role"><option value="user"><?= e(__('role.user')) ?></option><option value="admin"><?= e(__('role.admin')) ?></option></select>
     </label>
     <div class="modal-foot"><button type="button" class="btn btn-ghost" data-modal-close><?= e(__('common.cancel')) ?></button><button class="btn btn-primary" type="submit"><?= e(__('common.create')) ?></button></div>
+  </form>
+</dialog>
+
+<dialog class="modal" id="edit-user">
+  <form class="modal-box" method="post" autocomplete="off">
+    <?= csrf_field() ?><input type="hidden" name="action" value="edit"><input type="hidden" name="id" value="" data-fill="user-id">
+    <div class="modal-head"><h2><?= e(__('admin.users.edit')) ?>: <span data-fill-text="user-name"></span></h2><button type="button" class="btn-icon" data-modal-close><?= icon('x') ?></button></div>
+    <div class="grid-2 tight">
+      <label class="field"><span><?= e(__('auth.username')) ?></span><input type="text" name="username" required pattern="[A-Za-z0-9._\-]{3,32}" data-fill="user-name"></label>
+      <label class="field"><span><?= e(__('auth.email')) ?></span><input type="email" name="email" required maxlength="190" data-fill="user-email"></label>
+      <label class="field"><span><?= e(__('admin.users.role')) ?></span>
+        <select name="role" data-fill="user-role" data-disable-if="user-self"><option value="user"><?= e(__('role.user')) ?></option><option value="admin"><?= e(__('role.admin')) ?></option></select></label>
+      <label class="field"><span><?= e(__('admin.users.status')) ?></span>
+        <select name="status" data-fill="user-status" data-disable-if="user-self"><option value="active"><?= e(__('status.active')) ?></option><option value="disabled"><?= e(__('status.disabled')) ?></option></select></label>
+    </div>
+    <p class="muted small" data-show-if="user-self"><?= e(__('admin.users.self_note')) ?></p>
+    <label class="field"><span><?= e(__('admin.users.new_password_optional')) ?></span><input type="text" name="password" minlength="8" autocomplete="off" data-fill-clear>
+      <small class="hint"><?= e(__('admin.users.password_keep')) ?></small></label>
+    <label class="check" data-show-if="user-totp"><input type="checkbox" name="reset2fa" value="1" data-fill-clear> <?= e(__('admin.users.reset2fa')) ?></label>
+    <div class="modal-foot"><button type="button" class="btn btn-ghost" data-modal-close><?= e(__('common.cancel')) ?></button><button class="btn btn-primary" type="submit"><?= e(__('common.save')) ?></button></div>
   </form>
 </dialog>
 

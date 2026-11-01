@@ -3,6 +3,14 @@
 Każda zmiana podnosi numer wersji w `app/version.php` (`APP_VERSION`).
 Format: MAJOR.MINOR.PATCH – poprawki zwiększają PATCH, nowe funkcje MINOR.
 
+## 1.1.0 — 2026-11-01
+- Każde wejście do panelu admina wymaga podania nowego kodu 2FA (kod z logowania nie działa
+  ponownie; można też użyć kodu zapasowego). Dostęp wygasa po 15 min bezczynności lub po wyjściu
+  z panelu, a 5 błędnych kodów wylogowuje. Admin bez 2FA jest najpierw kierowany do jego włączenia
+  (aktualizacja bazy danych działa także bez 2FA, aby nie zablokować aktualizacji).
+- Panel admina → Użytkownicy: edycja konta (login, e-mail, rola, status, nowe hasło, reset 2FA)
+  przyciskiem ołówka lub z menu „⋮”; usuwanie konta z menu „⋮”.
+
 ## 1.0.2 — 2026-11-01
 - Domyślna nazwa nowej tablicy to data i godzina utworzenia (np. `2026-11-01 08:47`, czas lokalny
   użytkownika) zamiast „Tablica bez nazwy”. Wyczyszczenie nazwy w edytorze również ustawia

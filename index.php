@@ -29,6 +29,7 @@ $routes = [
     'admin-translate' => ['admin/translate.php', 'admin'],
     'admin-update'    => ['admin/update.php', 'admin'],
     'admin-backup'    => ['admin/backup.php', 'admin'],
+    'admin-verify'    => ['admin/verify.php', 'admin'],
 ];
 
 if (!isset($routes[$page])) {
@@ -43,7 +44,7 @@ if (is_post() && !csrf_valid($_POST['_csrf'] ?? null)) {
 }
 
 // Wymagana aktualizacja bazy danych (jak w WordPress)
-if (Migrator::needsUpdate() && !in_array($page, ['login', '2fa', 'logout', 'dbupdate', 'admin-backup'], true)) {
+if (Migrator::needsUpdate() && !in_array($page, ['login', '2fa', 'logout', 'dbupdate', 'admin-backup', 'admin-verify'], true)) {
     if (Auth::user() && Auth::isAdmin()) {
         redirect(url('dbupdate'));
     }
@@ -75,6 +76,27 @@ if ($access === 'admin' && !Auth::isAdmin()) {
 if ($user && Auth::mustSetup2fa($user) && !in_array($page, ['profile', 'logout', 'dbupdate'], true)) {
     flash('warning', __('auth.2fa_required_notice'));
     redirect(url('profile') . '#security');
+}
+
+// Panel admina: każde wejście wymaga nowego kodu 2FA
+if ($user && Auth::isAdmin()) {
+    if ($access !== 'admin' && $page !== 'logout') {
+        Auth::dropAdminVerified(); // wyjście z panelu kończy uprawnienia
+    } elseif ($access === 'admin' && $page !== 'admin-verify') {
+        // aktualizacja bazy nie może się zablokować, gdy admin nie ma jeszcze 2FA
+        $soft = in_array($page, ['dbupdate', 'admin-backup'], true);
+        if ((int)$user['totp_enabled'] !== 1) {
+            if (!$soft) {
+                flash('warning', __('admin.verify.need_2fa'));
+                redirect(url('profile') . '#security');
+            }
+        } elseif (!Auth::adminVerified()) {
+            $_SESSION['admin_return'] = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET' ? (string)($_SERVER['REQUEST_URI'] ?? '') : url($page);
+            redirect(url('admin-verify'));
+        } else {
+            Auth::markAdminVerified();
+        }
+    }
 }
 
 require ROOT . '/app/pages/' . $file;

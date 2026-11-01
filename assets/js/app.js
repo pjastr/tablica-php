@@ -169,6 +169,15 @@
           dlg.querySelectorAll('[data-fill="' + name + '"]').forEach(function (i) { i.value = mo.dataset[k]; });
           dlg.querySelectorAll('[data-fill-text="' + name + '"]').forEach(function (i) { i.textContent = mo.dataset[k]; });
         });
+        dlg.querySelectorAll('[data-fill-clear]').forEach(function (i) { if (i.type === 'checkbox') i.checked = false; else i.value = ''; });
+        dlg.querySelectorAll('[data-disable-if]').forEach(function (i) {
+          var key = i.getAttribute('data-disable-if').replace(/-([a-z])/g, function (m, c) { return c.toUpperCase(); });
+          i.disabled = mo.dataset[key] === '1';
+        });
+        dlg.querySelectorAll('[data-show-if]').forEach(function (i) {
+          var key = i.getAttribute('data-show-if').replace(/-([a-z])/g, function (m, c) { return c.toUpperCase(); });
+          i.hidden = mo.dataset[key] !== '1';
+        });
         dlg.showModal();
         var af = dlg.querySelector('[autofocus]'); if (af) af.focus();
       }

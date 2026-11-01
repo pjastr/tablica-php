@@ -206,6 +206,28 @@ final class Auth
         return count(json_decode((string)$u['backup_codes'], true) ?: []);
     }
 
+    /* ---------- Panel admina: ponowna weryfikacja 2FA ---------- */
+
+    /** Ważność dostępu do panelu admina po weryfikacji (przedłużana przy każdej akcji). */
+    public const ADMIN_IDLE = 900;
+
+    public static function adminVerified(): bool
+    {
+        return (int)($_SESSION['admin_ok_uid'] ?? 0) === self::id()
+            && (int)($_SESSION['admin_ok_until'] ?? 0) > time();
+    }
+
+    public static function markAdminVerified(): void
+    {
+        $_SESSION['admin_ok_uid'] = self::id();
+        $_SESSION['admin_ok_until'] = time() + self::ADMIN_IDLE;
+    }
+
+    public static function dropAdminVerified(): void
+    {
+        unset($_SESSION['admin_ok_uid'], $_SESSION['admin_ok_until']);
+    }
+
     /** Czy ustawienia wymagają od tego użytkownika włączenia 2FA. */
     public static function mustSetup2fa(array $u): bool
     {
