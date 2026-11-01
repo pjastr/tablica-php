@@ -85,7 +85,7 @@ ob_start(); ?>
       <button type="button" class="btn-icon" data-modal-close aria-label="<?= e(__('common.close')) ?>"><?= icon('x') ?></button>
     </div>
     <label class="field"><span><?= e(__('boards.board_title')) ?></span>
-      <input type="text" name="title" maxlength="190" placeholder="<?= e(__('boards.untitled')) ?>" autofocus>
+      <input type="text" name="title" maxlength="190" placeholder="<?= e(date('Y-m-d H:i')) ?>" data-default-title autofocus>
     </label>
     <div class="field"><span><?= e(__('boards.template')) ?></span>
       <div class="templates">

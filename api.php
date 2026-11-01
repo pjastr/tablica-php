@@ -61,7 +61,7 @@ function clean_title($t): string
 {
     $t = trim(preg_replace('/\s+/u', ' ', (string)$t));
     $t = mb_substr($t, 0, 190);
-    return $t === '' ? __('boards.untitled') : $t;
+    return $t === '' ? date('Y-m-d H:i') : $t;
 }
 
 function valid_thumb($t): ?string

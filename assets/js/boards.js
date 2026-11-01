@@ -27,13 +27,23 @@
     });
   });
 
+  /** Domyślna nazwa tablicy: data i godzina w czasie lokalnym, np. 2026-11-01 08:47 */
+  function stampTitle() {
+    var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+  window.App.stampTitle = stampTitle;
+
   var form = document.getElementById('new-board-form');
   if (form) {
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('[data-modal-open="new-board"]')) form.title.placeholder = stampTitle();
+    }, true);
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var btn = form.querySelector('[type=submit]');
       btn.disabled = true;
-      App.api('board.create', { title: form.title.value, template: (form.querySelector('[name=template]:checked') || {}).value })
+      App.api('board.create', { title: form.title.value.trim() || stampTitle(), template: (form.querySelector('[name=template]:checked') || {}).value })
         .then(function (r) { location.href = r.url; })
         .catch(function (err) { btn.disabled = false; App.toast(err.message, 'error'); });
     });

@@ -326,7 +326,8 @@ dialog.modal::backdrop { background: rgba(10, 12, 20, .45); backdrop-filter: blu
 .stat-val { font-size: 1.5rem; font-weight: 750; line-height: 1.1; }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .toggle-row { display: flex; align-items: center; gap: 12px; justify-content: space-between; }
-.table-card { padding: 0; overflow-x: auto; }
+.table-card { padding: 0; overflow-x: auto; overflow-y: hidden; }
+.menu.menu-fixed { position: fixed; right: auto; margin: 0; }
 .table { width: 100%; border-collapse: collapse; font-size: .93rem; }
 .table th { text-align: left; font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-2); font-weight: 700; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface-2); white-space: nowrap; }
 .table td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }

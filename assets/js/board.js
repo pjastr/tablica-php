@@ -815,7 +815,8 @@
 
   titleInput.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === 'Escape') { titleInput.blur(); } e.stopPropagation(); });
   titleInput.addEventListener('change', function () {
-    var v = titleInput.value.trim() || t('boards.untitled');
+    var v = titleInput.value.trim();
+    if (!v) { var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; }; v = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()); }
     titleInput.value = v; board.title = v; document.title = v; markDirty();
   });
 

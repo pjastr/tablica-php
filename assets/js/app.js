@@ -119,6 +119,30 @@
     document.querySelectorAll('.dropdown.open').forEach(function (d) { if (d !== except) d.classList.remove('open'); });
   }
 
+  /**
+   * Menu wewnątrz przewijanego kontenera (np. tabeli) otwiera się w pozycji "fixed",
+   * aby nie było przycinane i nie powodowało dodatkowego paska przewijania.
+   */
+  function placeMenu(btn, wrap) {
+    var menu = wrap.querySelector('.menu');
+    if (!menu) return;
+    if (!wrap.closest('.table-card')) return;
+    menu.classList.add('menu-fixed');
+    var r = btn.getBoundingClientRect();
+    var mw = menu.offsetWidth, mh = menu.offsetHeight;
+    var left = menu.classList.contains('menu-right') ? r.right - mw : r.left;
+    var top = r.bottom + 6;
+    if (top + mh > window.innerHeight - 8 && r.top - mh - 6 > 8) top = r.top - mh - 6;
+    menu.style.left = Math.max(8, Math.min(left, window.innerWidth - mw - 8)) + 'px';
+    menu.style.top = Math.max(8, top) + 'px';
+  }
+  // menu w pozycji fixed zamykamy przy przewijaniu / zmianie rozmiaru okna
+  window.addEventListener('scroll', function (e) {
+    if (e.target && e.target.closest && e.target.closest('.menu')) return;
+    if (document.querySelector('.dropdown.open .menu-fixed')) closeDropdowns();
+  }, true);
+  window.addEventListener('resize', function () { if (document.querySelector('.dropdown.open .menu-fixed')) closeDropdowns(); });
+
   document.addEventListener('click', function (e) {
     var tgt = e.target;
     var dd = tgt.closest('[data-dropdown]');
@@ -127,6 +151,7 @@
       var wrap = dd.closest('.dropdown');
       closeDropdowns(wrap);
       wrap.classList.toggle('open');
+      if (wrap.classList.contains('open')) placeMenu(dd, wrap);
       return;
     }
     if (!tgt.closest('.menu')) closeDropdowns();
